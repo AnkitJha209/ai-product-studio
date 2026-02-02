@@ -15,8 +15,8 @@ type GeminiPart =
       };
 
 export const generateImageFromTextGemini = async (
-    enhancedPrompt: string,
-): Promise<string> => {
+    enhancedPrompt: any,
+) => {
     const response = await ai.models.generateContent({
         model: "gemini-2.5-flash-image",
         contents: [
