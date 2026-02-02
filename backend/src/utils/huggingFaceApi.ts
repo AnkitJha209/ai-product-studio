@@ -6,7 +6,7 @@ dotenv.config()
 
 const client = new InferenceClient(process.env.HF_TOKEN);
 
-export const generateImage = async (inputs: string) => {
+export const generateImageHuggingFace = async (inputs: string) => {
     const image: any = await client.textToImage({
         provider: "hf-inference",
         model: "black-forest-labs/FLUX.1-dev",
