@@ -1,5 +1,6 @@
 import { BlobServiceClient } from "@azure/storage-blob";
 import dotenv from "dotenv";
+import crypto from 'crypto'
 
 dotenv.config();
 
@@ -11,9 +12,7 @@ const containerClient = blobServiceClient.getContainerClient(
     process.env.AZURE_STORAGE_CONTAINER_NAME as string,
 );
 
-export const storeToAzure = async (image: any) => {
-    const arrayBuffer = await image.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+export const storeToAzure = async (buffer: Buffer, imageType : string) => {
 
     const fileName = `${crypto.randomUUID()}.png`;
 
@@ -21,7 +20,7 @@ export const storeToAzure = async (image: any) => {
 
     await blockBlobClient.uploadData(buffer, {
         blobHTTPHeaders: {
-            blobContentType: image.type,
+            blobContentType: imageType,
         },
     });
 

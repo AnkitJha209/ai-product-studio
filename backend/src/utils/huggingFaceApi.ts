@@ -7,14 +7,16 @@ dotenv.config()
 const client = new InferenceClient(process.env.HF_TOKEN);
 
 export const generateImage = async (inputs: string) => {
-    const image = await client.textToImage({
+    const image: any = await client.textToImage({
         provider: "hf-inference",
         model: "black-forest-labs/FLUX.1-dev",
         inputs: inputs,
         parameters: { num_inference_steps: 5 },
     });
 
-    const imgUrl = await storeToAzure(image)
+    const arrayBuffer = await image.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const imageUrl = await storeToAzure(buffer, image?.type);
 
-    return imgUrl
+    return imageUrl
 }
