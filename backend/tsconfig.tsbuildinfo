@@ -1,0 +1,1 @@
+{"root":["./src/index.ts","./src/controllers/auth.ts","./src/controllers/geminigen.controller.ts","./src/controllers/hugginggen.controller.ts","./src/middleware/authverification.ts","./src/utils/enhancingprompt.ts","./src/utils/geminiapi.ts","./src/utils/huggingfaceapi.ts","./src/utils/prismaclient.ts","./src/utils/uploadingtoazure.ts"],"version":"5.7.3"}

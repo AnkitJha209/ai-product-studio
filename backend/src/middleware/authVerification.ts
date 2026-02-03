@@ -7,7 +7,7 @@ export interface AuthReq extends Request{
 
 export const verify = async (req: AuthReq, res: Response, next: NextFunction) => {
     try {
-        const token = req.cookies.token
+        const token = req.cookies.token || req.headers.authorization?.split(" ")[1]
         
         if(!token){
             res.status(404).json({

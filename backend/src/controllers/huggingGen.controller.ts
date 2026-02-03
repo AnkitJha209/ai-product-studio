@@ -3,6 +3,7 @@ import { enhancePrompt } from "../utils/enhancingPrompt";
 import { generateImageHuggingFace } from "../utils/huggingFaceApi";
 import { AuthReq } from "../middleware/authVerification";
 import { prisma } from "../utils/prismaClient";
+import sharp from "sharp";
 
 export const generateFromHuggingFace = async (req: AuthReq, res: Response) => {
     try {
@@ -12,8 +13,10 @@ export const generateFromHuggingFace = async (req: AuthReq, res: Response) => {
                 message: "Unauthorized",
             });
         }
+        console.log(req.user.id);
 
         const { userPrompt } = req.body;
+        console.log(userPrompt);
 
         if (!userPrompt) {
             return res.status(400).json({
@@ -28,23 +31,30 @@ export const generateFromHuggingFace = async (req: AuthReq, res: Response) => {
                 message: "No image file uploaded",
             });
         }
+        const optimizedImage = await sharp(req.file.buffer)
+                                        .resize(512, 512, { fit: "inside" })
+                                        .jpeg({ quality: 60 })
+                                        .toBuffer();
 
-        const base64Image = req.file.buffer.toString("base64");
+        const base64Image = optimizedImage.toString("base64");
+
+        console.log(base64Image.length)
 
         const enhancedPrompt = await enhancePrompt(
             base64Image,
             userPrompt.trim(),
         );
+        console.log(enhancedPrompt);
 
-        if(!enhancedPrompt){
+        if (!enhancedPrompt) {
             res.status(400).json({
                 success: false,
-                message: 'Enhance prompt is not available'
-            })
-            return
+                message: "Enhance prompt is not available",
+            });
+            return;
         }
 
-        const imageUrl = await generateImageHuggingFace(enhancedPrompt);
+        const imageUrl = await generateImageHuggingFace(enhancedPrompt, userPrompt);
 
         const image = await prisma.images.create({
             data: {

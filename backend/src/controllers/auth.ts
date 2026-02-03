@@ -4,7 +4,12 @@ import { prisma } from "../utils/prismaClient";
 
 export const guestSession =  async (req: Request, res: Response) => {
     try {
-        const user = await prisma.user.create({})
+        const {email} = req.body
+        const user = await prisma.user.create({
+            data:{
+                email
+            }
+        })
         
         const token = jwt.sign({ userId : user.id}, "JWT_SECRET", {expiresIn: '30d'})
 
@@ -13,6 +18,8 @@ export const guestSession =  async (req: Request, res: Response) => {
             sameSite: "lax",
             maxAge: 30 * 24 * 60 * 60 * 1000,
             secure: true 
+        }).json({
+            token
         })
     } catch (error) {
         console.log(error)
