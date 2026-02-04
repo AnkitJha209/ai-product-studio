@@ -1,11 +1,11 @@
 import { Response } from "express";
 import { enhancePrompt } from "../utils/enhancingPrompt";
-import { generateImageHuggingFace } from "../utils/huggingFaceApi";
+import { generateFromTogether, generateFromReplicate, generateFromWSTxt, generateFromFalTxt, generateFromZAI, generateFromReplicateTxt, generateFromWaveSpeed, generateFromFal } from "../utils/huggingFaceApi";
 import { AuthReq } from "../middleware/authVerification";
 import { prisma } from "../utils/prismaClient";
 import sharp from "sharp";
 
-export const generateFromHuggingFace = async (req: AuthReq, res: Response) => {
+export const generateFromFluxController = async (req: AuthReq, res: Response) => {
     try {
         if (!req.user) {
             return res.status(401).json({
@@ -54,7 +54,7 @@ export const generateFromHuggingFace = async (req: AuthReq, res: Response) => {
             return;
         }
 
-        const imageUrl = await generateImageHuggingFace(enhancedPrompt, userPrompt);
+        const imageUrl = await generateFromTogether(enhancedPrompt, userPrompt);
 
         const image = await prisma.images.create({
             data: {
@@ -79,3 +79,529 @@ export const generateFromHuggingFace = async (req: AuthReq, res: Response) => {
         });
     }
 };
+
+export const generateFromWSTxtController = async (req: AuthReq, res: Response) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized",
+            });
+        }
+        console.log(req.user.id);
+
+        const { userPrompt } = req.body;
+        console.log(userPrompt);
+
+        if (!userPrompt) {
+            return res.status(400).json({
+                success: false,
+                message: "Prompt is required",
+            });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "No image file uploaded",
+            });
+        }
+        const optimizedImage = await sharp(req.file.buffer)
+                                        .resize(512, 512, { fit: "inside" })
+                                        .jpeg({ quality: 60 })
+                                        .toBuffer();
+
+        const base64Image = optimizedImage.toString("base64");
+
+        console.log(base64Image.length)
+
+        const enhancedPrompt = await enhancePrompt(
+            base64Image,
+            userPrompt.trim(),
+        );
+        console.log(enhancedPrompt);
+
+        if (!enhancedPrompt) {
+            res.status(400).json({
+                success: false,
+                message: "Enhance prompt is not available",
+            });
+            return;
+        }
+
+        const imageUrl = await generateFromWSTxt(enhancedPrompt, userPrompt);
+
+        const image = await prisma.images.create({
+            data: {
+                userPrompt,
+                enhancedPrompt,
+                imageUrl,
+                userId: req.user.id,
+            },
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Image generated successfully",
+            image,
+        });
+    } catch (error) {
+        console.error("Image generation failed:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to generate image",
+        });
+    }
+};
+
+export const generateFromFalTxtController = async (req: AuthReq, res: Response) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized",
+            });
+        }
+        console.log(req.user.id);
+
+        const { userPrompt } = req.body;
+        console.log(userPrompt);
+
+        if (!userPrompt) {
+            return res.status(400).json({
+                success: false,
+                message: "Prompt is required",
+            });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "No image file uploaded",
+            });
+        }
+        const optimizedImage = await sharp(req.file.buffer)
+                                        .resize(512, 512, { fit: "inside" })
+                                        .jpeg({ quality: 60 })
+                                        .toBuffer();
+
+        const base64Image = optimizedImage.toString("base64");
+
+        console.log(base64Image.length)
+
+        const enhancedPrompt = await enhancePrompt(
+            base64Image,
+            userPrompt.trim(),
+        );
+        console.log(enhancedPrompt);
+
+        if (!enhancedPrompt) {
+            res.status(400).json({
+                success: false,
+                message: "Enhance prompt is not available",
+            });
+            return;
+        }
+
+        const imageUrl = await generateFromFalTxt(enhancedPrompt, userPrompt);
+
+        const image = await prisma.images.create({
+            data: {
+                userPrompt,
+                enhancedPrompt,
+                imageUrl,
+                userId: req.user.id,
+            },
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Image generated successfully",
+            image,
+        });
+    } catch (error) {
+        console.error("Image generation failed:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to generate image",
+        });
+    }
+};
+
+export const generateFromZAIController = async (req: AuthReq, res: Response) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized",
+            });
+        }
+        console.log(req.user.id);
+
+        const { userPrompt } = req.body;
+        console.log(userPrompt);
+
+        if (!userPrompt) {
+            return res.status(400).json({
+                success: false,
+                message: "Prompt is required",
+            });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "No image file uploaded",
+            });
+        }
+        const optimizedImage = await sharp(req.file.buffer)
+                                        .resize(512, 512, { fit: "inside" })
+                                        .jpeg({ quality: 60 })
+                                        .toBuffer();
+
+        const base64Image = optimizedImage.toString("base64");
+
+        console.log(base64Image.length)
+
+        const enhancedPrompt = await enhancePrompt(
+            base64Image,
+            userPrompt.trim(),
+        );
+        console.log(enhancedPrompt);
+
+        if (!enhancedPrompt) {
+            res.status(400).json({
+                success: false,
+                message: "Enhance prompt is not available",
+            });
+            return;
+        }
+
+        const imageUrl = await generateFromZAI(enhancedPrompt, userPrompt);
+
+        const image = await prisma.images.create({
+            data: {
+                userPrompt,
+                enhancedPrompt,
+                imageUrl,
+                userId: req.user.id,
+            },
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Image generated successfully",
+            image,
+        });
+    } catch (error) {
+        console.error("Image generation failed:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to generate image",
+        });
+    }
+};
+
+export const generateFromReplicateTxtController = async (req: AuthReq, res: Response) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized",
+            });
+        }
+        console.log(req.user.id);
+
+        const { userPrompt } = req.body;
+        console.log(userPrompt);
+
+        if (!userPrompt) {
+            return res.status(400).json({
+                success: false,
+                message: "Prompt is required",
+            });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "No image file uploaded",
+            });
+        }
+        const optimizedImage = await sharp(req.file.buffer)
+                                        .resize(512, 512, { fit: "inside" })
+                                        .jpeg({ quality: 60 })
+                                        .toBuffer();
+
+        const base64Image = optimizedImage.toString("base64");
+
+        console.log(base64Image.length)
+
+        const enhancedPrompt = await enhancePrompt(
+            base64Image,
+            userPrompt.trim(),
+        );
+        console.log(enhancedPrompt);
+
+        if (!enhancedPrompt) {
+            res.status(400).json({
+                success: false,
+                message: "Enhance prompt is not available",
+            });
+            return;
+        }
+
+        const imageUrl = await generateFromReplicateTxt(enhancedPrompt, userPrompt);
+
+        const image = await prisma.images.create({
+            data: {
+                userPrompt,
+                enhancedPrompt,
+                imageUrl,
+                userId: req.user.id,
+            },
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Image generated successfully",
+            image,
+        });
+    } catch (error) {
+        console.error("Image generation failed:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to generate image",
+        });
+    }
+};
+
+export const generateFromReplicateController = async (req: AuthReq, res: Response) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized",
+            });
+        }
+        console.log(req.user.id);
+
+        const { userPrompt } = req.body;
+        console.log(userPrompt);
+
+        if (!userPrompt) {
+            return res.status(400).json({
+                success: false,
+                message: "Prompt is required",
+            });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "No image file uploaded",
+            });
+        }
+        const optimizedImage = await sharp(req.file.buffer)
+                                        .resize(512, 512, { fit: "inside" })
+                                        .jpeg({ quality: 60 })
+                                        .toBuffer();
+
+        const base64Image = optimizedImage.toString("base64");
+
+        console.log(base64Image.length)
+
+        const enhancedPrompt = await enhancePrompt(
+            base64Image,
+            userPrompt.trim(),
+        );
+        console.log(enhancedPrompt);
+
+        if (!enhancedPrompt) {
+            res.status(400).json({
+                success: false,
+                message: "Enhance prompt is not available",
+            });
+            return;
+        }
+
+        const imageUrl = await generateFromReplicate(base64Image ,enhancedPrompt, userPrompt);
+
+        const image = await prisma.images.create({
+            data: {
+                userPrompt,
+                enhancedPrompt,
+                imageUrl,
+                userId: req.user.id,
+            },
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Image generated successfully",
+            image,
+        });
+    } catch (error) {
+        console.error("Image generation failed:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to generate image",
+        });
+    }
+};
+
+export const generateFromWaveSpeedController = async (req: AuthReq, res: Response) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized",
+            });
+        }
+        console.log(req.user.id);
+
+        const { userPrompt } = req.body;
+        console.log(userPrompt);
+
+        if (!userPrompt) {
+            return res.status(400).json({
+                success: false,
+                message: "Prompt is required",
+            });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "No image file uploaded",
+            });
+        }
+        const optimizedImage = await sharp(req.file.buffer)
+                                        .resize(512, 512, { fit: "inside" })
+                                        .jpeg({ quality: 60 })
+                                        .toBuffer();
+
+        const base64Image = optimizedImage.toString("base64");
+
+        console.log(base64Image.length)
+
+        const enhancedPrompt = await enhancePrompt(
+            base64Image,
+            userPrompt.trim(),
+        );
+        console.log(enhancedPrompt);
+
+        if (!enhancedPrompt) {
+            res.status(400).json({
+                success: false,
+                message: "Enhance prompt is not available",
+            });
+            return;
+        }
+
+        const imageUrl = await generateFromWaveSpeed(base64Image ,enhancedPrompt, userPrompt);
+
+        const image = await prisma.images.create({
+            data: {
+                userPrompt,
+                enhancedPrompt,
+                imageUrl,
+                userId: req.user.id,
+            },
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Image generated successfully",
+            image,
+        });
+    } catch (error) {
+        console.error("Image generation failed:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to generate image",
+        });
+    }
+};
+
+export const generateFromFalController = async (req: AuthReq, res: Response) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized",
+            });
+        }
+        console.log(req.user.id);
+
+        const { userPrompt } = req.body;
+        console.log(userPrompt);
+
+        if (!userPrompt) {
+            return res.status(400).json({
+                success: false,
+                message: "Prompt is required",
+            });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "No image file uploaded",
+            });
+        }
+        const optimizedImage = await sharp(req.file.buffer)
+                                        .resize(512, 512, { fit: "inside" })
+                                        .jpeg({ quality: 60 })
+                                        .toBuffer();
+
+        const base64Image = optimizedImage.toString("base64");
+
+        console.log(base64Image.length)
+
+        const enhancedPrompt = await enhancePrompt(
+            base64Image,
+            userPrompt.trim(),
+        );
+        console.log(enhancedPrompt);
+
+        if (!enhancedPrompt) {
+            res.status(400).json({
+                success: false,
+                message: "Enhance prompt is not available",
+            });
+            return;
+        }
+
+        const imageUrl = await generateFromFal(base64Image ,enhancedPrompt, userPrompt);
+
+        const image = await prisma.images.create({
+            data: {
+                userPrompt,
+                enhancedPrompt,
+                imageUrl,
+                userId: req.user.id,
+            },
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Image generated successfully",
+            image,
+        });
+    } catch (error) {
+        console.error("Image generation failed:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to generate image",
+        });
+    }
+};
+
